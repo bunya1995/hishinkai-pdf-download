@@ -71,19 +71,20 @@
   </section>
 </main>
 <script>
-  // Releases の latest.json を読んで、最新版の番号とファイル名を入れる
-  const base = 'https://github.com/bunya1995/hishinkai-pdf-download/releases/latest/download/';
-  const set = (id, file) => { const a = document.getElementById(id); if (file) a.href = base + encodeURIComponent(file); else a.style.display = 'none'; };
-  fetch(base + 'latest.json', { cache: 'no-store' }).then((r) => r.json()).then((info) => {
-    document.getElementById('ver').textContent = 'v' + info.version;
-    set('dl-win', info.files.win);
-    set('dl-mac-arm64', info.files['mac-arm64']);
-    set('dl-mac-x64', info.files['mac-x64']);
-  }).catch(() => {
-    // 読めないときは、リリース一覧へ
-    document.getElementById('ver').textContent = '';
-    for (const id of ['dl-win', 'dl-mac-arm64', 'dl-mac-x64']) document.getElementById(id).href = 'https://github.com/bunya1995/hishinkai-pdf-download/releases/latest';
-  });
+  // GitHub の API で最新の Release を調べて、番号とダウンロード先を入れる
+  const releases = 'https://github.com/bunya1995/hishinkai-pdf-download/releases/latest';
+  for (const id of ['dl-win', 'dl-mac-arm64', 'dl-mac-x64']) document.getElementById(id).href = releases;
+  fetch('https://api.github.com/repos/bunya1995/hishinkai-pdf-download/releases/latest', { cache: 'no-store' })
+    .then((r) => r.json())
+    .then((rel) => {
+      document.getElementById('ver').textContent = rel.tag_name || '';
+      const pick = (re) => (rel.assets || []).find((a) => re.test(a.name));
+      const set = (id, a) => { if (a) document.getElementById(id).href = a.browser_download_url; };
+      set('dl-win', pick(/win.*\.exe$/));
+      set('dl-mac-arm64', pick(/mac-arm64\.dmg$/));
+      set('dl-mac-x64', pick(/mac-x64\.dmg$/));
+    })
+    .catch(() => { document.getElementById('ver').textContent = ''; });
 </script>
 </body>
 </html>
