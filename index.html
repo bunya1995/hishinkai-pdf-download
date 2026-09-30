@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>飛信会PDF ダウンロード</title>
+  <style>
+    :root { --accent: #2563eb; --text: #1f2937; --muted: #6b7280; --border: #e5e7eb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, "Hiragino Sans", "Yu Gothic UI", Meiryo, "Segoe UI", sans-serif; color: var(--text); background: #f3f4f6; }
+    main { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
+    h1 { font-size: 28px; margin: 0 0 4px; display: flex; align-items: center; gap: 12px; }
+    h1 img { width: 44px; height: 44px; border-radius: 10px; }
+    .ver { color: var(--muted); margin: 0 0 32px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .card h2 { font-size: 17px; margin: 0 0 4px; }
+    .card p { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+    .btn { display: block; text-align: center; background: var(--accent); color: #fff; text-decoration: none; padding: 12px; border-radius: 10px; font-weight: 600; }
+    .btn:hover { background: #1d4ed8; }
+    .btn.sub { background: #fff; color: var(--accent); border: 1px solid #bfdbfe; margin-top: 8px; font-weight: 500; }
+    section { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px 24px; margin-top: 24px; }
+    section h2 { font-size: 16px; margin: 0 0 10px; }
+    ol { margin: 0; padding-left: 20px; line-height: 1.8; }
+    li b { background: #fef3c7; padding: 0 4px; border-radius: 4px; }
+    .note { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1><img src="icon.png" alt="" />飛信会PDF</h1>
+  <p class="ver">最新版: <span id="ver">確認中…</span></p>
+
+  <div class="cards">
+    <div class="card">
+      <h2>Windows</h2>
+      <p>Windows 10 / 11</p>
+      <a class="btn" id="dl-win" href="#">ダウンロード</a>
+    </div>
+    <div class="card">
+      <h2>Mac</h2>
+      <p>「このMacについて」で <b>チップ Apple M〜</b> ならこちら</p>
+      <a class="btn" id="dl-mac-arm64" href="#">Appleシリコン用</a>
+      <a class="btn sub" id="dl-mac-x64" href="#">Intel用はこちら</a>
+    </div>
+  </div>
+
+  <section>
+    <h2>Windows でのインストール</h2>
+    <ol>
+      <li>ダウンロードした <code>.exe</code> をダブルクリック</li>
+      <li>「WindowsによってPCが保護されました」と出たら <b>詳細情報</b> → <b>実行</b></li>
+      <li>PDFを右クリック → プログラムから開く → 別のプログラムを選択 → <b>飛信会PDF</b> を選び「常に使う」にチェック</li>
+    </ol>
+    <p class="note">警告が出るのは社内アプリで発行元が未登録なためです。すでに入っている人は、上書きインストールで新しい版になります。</p>
+  </section>
+
+  <section>
+    <h2>Mac でのインストール</h2>
+    <ol>
+      <li>ダウンロードした <code>.dmg</code> を開き、飛信会PDF を <b>Applications</b> にドラッグ（すでにある場合は「置き換える」）</li>
+      <li>初回は Finder で <b>右クリック → 開く</b>。「開発元を確認できません」と出たら、システム設定 → プライバシーとセキュリティ の一番下にある <b>このまま開く</b></li>
+      <li>PDFを右クリック → 情報を見る → このアプリケーションで開く で 飛信会PDF を選び <b>すべてを変更…</b></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>更新について</h2>
+    <p class="note" style="margin:0">アプリを開くと右下にバージョンが表示されます。新しい版があると「新しい版 ○○ に更新」ボタンが出るので、押してインストーラーを入れ直してください。</p>
+  </section>
+</main>
+<script>
+  // Releases の latest.json を読んで、最新版の番号とファイル名を入れる
+  const base = 'https://github.com/bunya1995/hishinkai-pdf-download/releases/latest/download/';
+  const set = (id, file) => { const a = document.getElementById(id); if (file) a.href = base + encodeURIComponent(file); else a.style.display = 'none'; };
+  fetch(base + 'latest.json', { cache: 'no-store' }).then((r) => r.json()).then((info) => {
+    document.getElementById('ver').textContent = 'v' + info.version;
+    set('dl-win', info.files.win);
+    set('dl-mac-arm64', info.files['mac-arm64']);
+    set('dl-mac-x64', info.files['mac-x64']);
+  }).catch(() => {
+    // 読めないときは、リリース一覧へ
+    document.getElementById('ver').textContent = '';
+    for (const id of ['dl-win', 'dl-mac-arm64', 'dl-mac-x64']) document.getElementById(id).href = 'https://github.com/bunya1995/hishinkai-pdf-download/releases/latest';
+  });
+</script>
+</body>
+</html>
